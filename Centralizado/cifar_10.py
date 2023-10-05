@@ -1,5 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import datasets, layers, models
+import pickle
+from tensorflow.keras.models import load_model
 
 # Carregar dados
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
@@ -26,9 +28,14 @@ model.compile(optimizer='adam',
               metrics=['accuracy'])
 
 # Treinar modelo
-history = model.fit(train_images, train_labels, epochs=10, 
+model = load_model('my_model.h5')
+with open('history.pkl', 'rb') as file:
+    loaded_history = pickle.load(file)
+history = model.fit(train_images, train_labels, epochs=80, 
                     validation_data=(test_images, test_labels))
-
+model.save('my_model.h5') 
+with open('history.pkl', 'wb') as file:
+    pickle.dump(history.history, file)
 # Avaliar modelo
 test_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)
 print(f'Test accuracy: {test_acc}')
